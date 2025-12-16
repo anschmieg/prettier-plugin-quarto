@@ -1,20 +1,6 @@
-import type { SlideInfoBase } from '@slidev/types'
+import type * as Mdast from 'mdast'
 
-export const astFormat = 'slidev-ast'
+export const astFormat = 'quarto-ast'
 
-export interface MarkdownNode {
-  type: 'markdown'
-  raw: string
-  slides: SlideNode[]
-}
-
-export interface SlideInfo extends SlideInfoBase {
-  isFirstSlide: boolean
-}
-
-export interface SlideNode {
-  type: 'slide'
-  info: SlideInfo
-}
-
-export type ASTNode = MarkdownNode | SlideNode
+// Re-export mdast types and extend as needed for Quarto
+export type ASTNode = Mdast.Root

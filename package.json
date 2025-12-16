@@ -43,14 +43,24 @@
     "prettier": "^3.0.0"
   },
   "dependencies": {
+    "mdast-util-directive": "^3.0.0",
+    "mdast-util-from-markdown": "^2.0.0",
+    "mdast-util-to-markdown": "^2.1.0",
+    "micromark": "^4.0.0",
+    "micromark-extension-directive": "^3.0.0",
+    "micromark-util-symbol": "^2.0.0",
+    "micromark-util-types": "^2.0.0",
+    "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.6.4",
     "@antfu/ni": "^0.21.12",
+    "@types/mdast": "^4.0.0",
     "@types/node": "^20.11.15",
     "bumpp": "^9.3.0",
     "eslint": "^8.56.0",
     "lint-staged": "^15.2.2",
+    "prettier": "^3.0.0",
     "simple-git-hooks": "^2.9.0",
     "tsup": "^8.0.1",
     "typescript": "^5.0.0",

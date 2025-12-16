@@ -1,110 +1,81 @@
-import type { Doc, Options, Printer } from 'prettier'
+import type { AstPath, Printer } from 'prettier'
 import { doc } from 'prettier'
-import type { ASTNode, SlideInfo } from './ast'
+import type * as Mdast from 'mdast'
+import { toMarkdown } from 'mdast-util-to-markdown'
+import { directiveToMarkdown } from 'mdast-util-directive'
+import type { ASTNode } from './ast'
 
-const { join, line, hardline } = doc.builders
+const { hardline } = doc.builders
 
 export const printer: Printer<ASTNode> = {
-  print(path, _options, print, _args) {
+  print(path: AstPath<ASTNode>) {
     const node = path.getNode()
 
-    if (!node)
-      throw new Error('Node is null')
+    if (!node) {
+      return ''
+    }
 
-    if (node.type === 'markdown')
-      return join([hardline, '---', hardline], path.map(print, 'slides'))
+    // For the root node, delegate to mdast-util-to-markdown
+    // which handles the full tree serialization
+    if (node.type === 'root') {
+      const markdown = toMarkdown(node as Mdast.Root, {
+        extensions: [directiveToMarkdown()],
+      })
+      return markdown
+    }
 
-    if (node.type === 'slide')
-      return printSlideNoEmbed(node.info)
-
-    throw new Error(`Unknown node type: ${node}`)
+    return ''
   },
-  embed(path) {
-    const node = path.getNode() as ASTNode
 
-    if (node.type === 'slide')
-      return textToDoc => printSlide(node.info, textToDoc)
+  embed(path: AstPath<ASTNode>) {
+    const node = path.getNode() as any
+
+    // Handle code blocks - delegate to appropriate language formatter
+    if (node.type === 'code' && node.lang) {
+      const lang = node.lang.toLowerCase()
+      const value = node.value || ''
+
+      // Map Quarto language names to Prettier parser names
+      const languageMap: Record<string, string> = {
+        python: 'python',
+        r: 'r',
+        julia: 'julia',
+        javascript: 'babel',
+        js: 'babel',
+        typescript: 'typescript',
+        ts: 'typescript',
+        yaml: 'yaml',
+        json: 'json',
+        html: 'html',
+        css: 'css',
+        scss: 'scss',
+        bash: 'sh',
+        sh: 'sh',
+      }
+
+      const parser = languageMap[lang]
+      if (parser) {
+        return async (textToDoc: any) => {
+          try {
+            const formatted = await textToDoc(value, { parser })
+            return [
+              '```',
+              node.lang,
+              node.meta ? ` ${node.meta}` : '',
+              hardline,
+              formatted,
+              hardline,
+              '```',
+            ]
+          }
+          catch {
+            // If formatting fails, return undefined to use default
+            return undefined
+          }
+        }
+      }
+    }
 
     return null
   },
-}
-
-async function printSlide(
-  info: SlideInfo,
-  textToDoc: (text: string, options: Options) => Promise<Doc>,
-): Promise<Doc[]> {
-  return [
-    ...(await printFrontmatter(info, textToDoc)),
-    ...(await printContent(info, textToDoc)),
-    ...printNote(info),
-  ]
-}
-
-async function printFrontmatter(
-  info: SlideInfo,
-  textToDoc: (text: string, options: Options) => Promise<Doc>,
-): Promise<Doc[]> {
-  const trimed = info.frontmatterRaw?.trim() ?? ''
-  if (trimed.length === 0)
-    return info.isFirstSlide ? [] : [hardline]
-
-  const formatted = await textToDoc(trimed, {
-    parser: 'yaml',
-  })
-  const end = info.content.trim() ? [hardline] : []
-
-  return info.frontmatterStyle === 'yaml'
-    ? [hardline, '```yaml', hardline, formatted, hardline, '```', hardline, end]
-    : [info.isFirstSlide ? ['---', hardline] : [], formatted, hardline, '---', hardline, end]
-}
-
-async function printContent(
-  info: SlideInfo,
-  textToDoc: (text: string, options: Options) => Promise<Doc>,
-): Promise<Doc[]> {
-  if (info.content.trim().length === 0)
-    return []
-
-  return [
-    await textToDoc(info.content, {
-      parser: 'markdown',
-    }),
-    hardline,
-  ]
-}
-
-function printNote(info: SlideInfo): Doc[] {
-  if (!info.note)
-    return []
-  return [hardline, '<!--', line, info.note.trim(), line, '-->', hardline]
-}
-
-function printSlideNoEmbed(info: SlideInfo): Doc[] {
-  return [
-    ...(printFrontmatterNoEmbed(info)),
-    ...(printContentNoEmbed(info)),
-    ...printNote(info),
-  ]
-}
-
-function printFrontmatterNoEmbed(info: SlideInfo): Doc[] {
-  const trimed = info.frontmatterRaw?.trim() ?? ''
-  if (trimed.length === 0)
-    return info.isFirstSlide ? [] : [hardline]
-
-  const end = info.content.trim() ? [hardline] : []
-
-  return info.frontmatterStyle === 'yaml'
-    ? [hardline, '```yaml', hardline, trimed, hardline, '```', hardline, end]
-    : [info.isFirstSlide ? ['---', hardline] : [], trimed, hardline, '---', hardline, end]
-}
-
-function printContentNoEmbed(info: SlideInfo): Doc[] {
-  if (info.content.trim().length === 0)
-    return []
-
-  return [
-    info.content,
-    hardline,
-  ]
 }

@@ -3,12 +3,12 @@ import * as prettier from 'prettier'
 
 import { describe, expect, it } from 'vitest'
 
-import Slidev from '../src'
+import QuartoPlugin from '../src'
 
 async function format(src: string, options: prettier.Options = {}) {
   return await prettier.format(src, {
-    parser: 'slidev',
-    plugins: [Slidev],
+    parser: 'quarto',
+    plugins: [QuartoPlugin],
     ...options,
   })
 }
@@ -17,6 +17,8 @@ describe('format', () => {
   const files = fs.readdirSync('./test/inputs')
   const configs = fs.readdirSync('./test/configs')
   for (const file of files) {
+    if (!file.endsWith('.qmd'))
+      continue
     const src = fs.readFileSync(`./test/inputs/${file}`, 'utf-8')
     for (const configFile of configs) {
       const config = JSON.parse(
@@ -24,9 +26,23 @@ describe('format', () => {
       )
       it(`should format ${file} in config ${configFile} correctly`, async () => {
         expect(await format(src, config)).toMatchFileSnapshot(
-          `./outputs/${file.slice(0, -3)}_${configFile.slice(0, -5)}.md`,
+          `./outputs/${file.slice(0, -4)}_${configFile.slice(0, -5)}.qmd`,
         )
       })
     }
+  }
+})
+
+describe('idempotency', () => {
+  const files = fs.readdirSync('./test/inputs')
+  for (const file of files) {
+    if (!file.endsWith('.qmd'))
+      continue
+    const src = fs.readFileSync(`./test/inputs/${file}`, 'utf-8')
+    it(`should be idempotent for ${file}`, async () => {
+      const formatted = await format(src)
+      const formattedAgain = await format(formatted)
+      expect(formatted).toBe(formattedAgain)
+    })
   }
 })

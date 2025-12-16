@@ -1,31 +1,25 @@
-import { parse } from '@slidev/parser'
 import type { Parser } from 'prettier'
+import { fromMarkdown } from 'mdast-util-from-markdown'
+import { directive } from 'micromark-extension-directive'
+import { directiveFromMarkdown } from 'mdast-util-directive'
 import type { ASTNode } from './ast'
 import { astFormat } from './ast'
 
 export const parser: Parser<ASTNode> = {
   astFormat,
-  locStart(node) {
-    if (node.type !== 'markdown')
-      throw new Error('not implemented')
-    return 0
+  locStart(node: any) {
+    return node.position?.start.offset ?? 0
   },
-  locEnd(node) {
-    if (node.type !== 'markdown')
-      throw new Error('not implemented')
-    return node.raw.length
+  locEnd(node: any) {
+    return node.position?.end.offset ?? 0
   },
-  async parse(src) {
-    const { slides, raw } = await parse(src)
-    return {
-      type: 'markdown',
-      raw,
-      slides: slides.map((info, index) => ({
-        type: 'slide',
-        info: Object.assign(info, {
-          isFirstSlide: index === 0,
-        }),
-      })),
-    }
+  async parse(text: string) {
+    // Parse markdown with directive support (for ::: divs)
+    const tree = fromMarkdown(text, {
+      extensions: [directive()],
+      mdastExtensions: [directiveFromMarkdown()],
+    })
+
+    return tree
   },
 }

@@ -6,14 +6,14 @@ import { printer } from './printer'
 export default {
   languages: [
     {
-      name: 'slidev',
-      parsers: ['slidev'],
-      extensions: ['.md'],
-      vscodeLanguageIds: ['markdown'],
+      name: 'Quarto',
+      parsers: ['quarto'],
+      extensions: ['.qmd'],
+      vscodeLanguageIds: ['quarto'],
     },
   ],
   parsers: {
-    slidev: parser,
+    quarto: parser,
   },
   printers: {
     [astFormat]: printer,
