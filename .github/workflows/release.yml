@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # Required for OIDC / Trusted Publishing
 
     steps:
       - name: Checkout
@@ -19,7 +18,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # Do NOT set registry-url here - it creates .npmrc that breaks OIDC
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -32,5 +31,7 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Publish to npm with OIDC
-        run: npm publish --provenance --access public
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
