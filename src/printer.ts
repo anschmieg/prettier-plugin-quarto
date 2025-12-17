@@ -33,16 +33,28 @@ export const printer: Printer<ASTNode> = {
             // SPECIAL: Handle preprocessed Math blocks
             if (node.name === 'math') {
               const content = state.containerFlow(node, info)
-              // Reconstruct attributes: {#eq-label}
-              let idStr = ''
-              if (node.attributes && node.attributes.id) {
-                idStr = ` {#${node.attributes.id}}`
+              // Reconstruct attributes: {#eq-label .class key="val"}
+              const attrs: string[] = []
+
+              if (node.attributes) {
+                if (node.attributes.id) {
+                  attrs.push(`#${node.attributes.id}`)
+                }
+
+                if (node.attributes.class) {
+                  const classes = node.attributes.class.split(' ')
+                  classes.forEach((c: string) => attrs.push(`.${c}`))
+                }
+
+                for (const [key, value] of Object.entries(node.attributes)) {
+                  if (key !== 'class' && key !== 'id') {
+                    attrs.push(`${key}="${value}"`)
+                  }
+                }
               }
-              else if (node.attributes && Object.keys(node.attributes).length > 0) {
-                // Fallback for other attributes if any?
-                // Usually math only has Label.
-                // But if we used the preprocess hack, the label might be empty or specific string
-              }
+
+              const attrStr = attrs.length > 0 ? ` {${attrs.join(' ')}}` : ''
+              return `$$\n${content.trim()}\n$$${attrStr}`
 
               // If we passed the full label string in preprocessing as a class or something?
               // In preprocess.ts I did: `::: math ${attrs}`

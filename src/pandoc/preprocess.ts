@@ -48,19 +48,10 @@ export function preprocessPandocSyntax(text: string, options: PreprocessOptions 
           // or just output back $$ ... $$?
           // Let's output directive to be safe from swallowing.
 
-          // Convert {#label} to {id="label"} for Directive compatibility
-          let attrs = ''
-          if (label) {
-            const idMatch = label.match(/^\{#(.+)\}$/)
-            if (idMatch) {
-              attrs = `{id="${idMatch[1]}"}`
-            }
-            else {
-              attrs = label // Fallback (though math labels are usually IDs)
-            }
-          }
-
-          result.push(`:::math${attrs}`.trim())
+          // Convert to directive: :::math{#label} or :::math
+          // We rely on micromark-extension-directive to parse the attributes
+          const attrs = label || ''
+          result.push(`:::math${attrs}`)
           result.push(...mathBuffer)
           result.push(':::')
 
@@ -83,18 +74,7 @@ export function preprocessPandocSyntax(text: string, options: PreprocessOptions 
             const content = singleLineMatch[1]
             const label = singleLineMatch[2] || ''
 
-            let attrs = ''
-            if (label) {
-              const idMatch = label.match(/^\{#(.+)\}$/)
-              if (idMatch) {
-                attrs = `{id="${idMatch[1]}"}`
-              }
-              else {
-                attrs = label
-              }
-            }
-
-            result.push(`:::math${attrs}`.trim())
+            result.push(`:::math${label}`)
             result.push(content)
             result.push(':::')
             continue
@@ -149,7 +129,7 @@ export function preprocessPandocSyntax(text: string, options: PreprocessOptions 
     }
 
     // Match opening fence: ::: optionally followed by name and/or {attributes}
-    const openMatch = line.match(/^(:{3,})(?:\s+(\w[\w-]*))?\s*(\{[^}]+\})?/)
+    const openMatch = line.match(/^(:{3,})\s*(\w[\w-]*)?\s*(\{[^}]+\})?/)
     if (openMatch) {
       const [, colons, name, attrs] = openMatch
 
