@@ -3,6 +3,7 @@ import {
 } from 'micromark-extension-definition-list'
 import {
   defListFromMarkdown,
+  defListToMarkdown,
 } from 'mdast-util-definition-list'
 import {
   citeSyntax,
@@ -15,6 +16,7 @@ import {
 // Re-export definition list
 export const definitionListExtension = defList
 export const definitionListFromMarkdownExtension = defListFromMarkdown
+export const definitionListToMarkdownExtension = defListToMarkdown
 
 // Re-export citation
 export const citationExtension = citeSyntax

@@ -5,6 +5,8 @@ import type { ASTNode } from './ast'
 
 // Import toMarkdown extensions
 import {
+  citationToMarkdownExtension,
+  definitionListToMarkdownExtension,
   directiveToMarkdownExtension,
   frontmatterToMarkdownExtension,
   gfmToMarkdownExtension,
@@ -126,6 +128,8 @@ export const printer: Printer<ASTNode> = {
           mathToMarkdownExtension(),
           frontmatterToMarkdownExtension,
           gfmToMarkdownExtension(),
+          citationToMarkdownExtension(),
+          definitionListToMarkdownExtension,
         ],
       })
       return markdown

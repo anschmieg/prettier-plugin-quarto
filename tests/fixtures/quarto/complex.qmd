@@ -1,0 +1,121 @@
+---
+title: Complex Quarto Test Document
+author: Test Author
+format: html
+---
+
+# Introduction
+
+This document tests **all** Quarto-specific features on top of Pandoc.
+
+## Shortcodes
+
+{{< meta title >}}
+
+{{< var version >}}
+
+{{< include _common.qmd >}}
+
+{{< video https://www.youtube.com/embed/example >}}
+
+## Math Blocks
+
+Display math with label:
+
+$$
+E = mc^2
+$$ {#eq:einstein}
+
+See @eq:einstein for reference.
+
+## Citations
+
+According to @smith2020, this is important [@jones2021].
+
+## Callout Blocks
+
+::: {.callout-note}
+This is a note callout in Quarto style.
+:::
+
+::: {.callout-warning}
+## Custom Title
+This warning has a custom title.
+:::
+
+::: {.callout-tip collapse="true"}
+This tip is collapsible.
+:::
+
+## Tabsets
+
+::: {.panel-tabset}
+### Tab 1
+
+Content for tab 1.
+
+### Tab 2
+
+Content for tab 2.
+:::
+
+## Code Blocks with Execution
+
+```{python}
+#| label: fig-example
+#| fig-cap: "A sample figure"
+
+import matplotlib.pyplot as plt
+plt.plot([1, 2, 3], [1, 4, 9])
+```
+
+```{r}
+#| echo: false
+summary(cars)
+```
+
+## Cross-References
+
+See @fig-example and @tbl-data.
+
+::: {#tbl-data}
+| A | B |
+|---|---|
+| 1 | 2 |
+
+Sample table
+:::
+
+## Nested Divs with Shortcodes
+
+::: {.column-margin}
+{{< meta author >}}
+:::
+
+## Code Examples (Should be preserved)
+
+```markdown
+{{< meta title >}}
+```
+
+```qmd
+$$
+E = mc^2
+$$ {#eq:demo}
+```
+
+## Layout
+
+::: {layout-ncol=2}
+![Image 1](img1.png)
+
+![Image 2](img2.png)
+:::
+
+## Definition Lists
+
+Quarto
+:   A scientific publishing system.
+
+Pandoc
+:   A universal document converter.
