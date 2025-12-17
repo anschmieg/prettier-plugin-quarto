@@ -20,6 +20,7 @@ vite.config.ts
 # Development
 quarto-docs/
 DEVELOPER_CONTEXT.md
+NPM_PUBLISH_GUIDE.md
 
 # Misc
 .DS_Store

@@ -5,9 +5,9 @@
 - [x] README.md updated with package name `prettier-plugin-pandoc`
 - [x] LICENSE exists (MIT)
 - [x] package.json metadata updated (homepage, bugs)
-- [x] .npmignore configured
-- [x] Build passes (`npm run build`)
-- [x] Tests pass (`npm test`)
+- [x] .npmignore configured (excludes guide, tests, src)
+- [x] Build passes (`bun run build`)
+- [x] Tests pass (`bun test`)
 - [x] Git committed and pushed
 
 ## 📦 Publishing Steps
@@ -17,12 +17,7 @@
 ```bash
 npm login
 ```
-
-You'll be prompted for:
-- Username
-- Password
-- Email
-- 2FA code (if enabled)
+*Note: We stick to `npm login` and `npm publish` as they are the standard interactions with the registry.*
 
 ### 2. Verify Package Contents
 
@@ -39,15 +34,13 @@ This shows what will be included in the package. Should see:
 Should NOT see:
 - `src/` folder
 - `tests/` folder
-- `.github/` folder
+- `NPM_PUBLISH_GUIDE.md`
 
 ### 3. Publish
 
 ```bash
 npm publish --access public
 ```
-
-**Note:** No `--tag` is needed, this will publish as `latest`.
 
 ### 4. Verify Publication
 
@@ -63,8 +56,8 @@ In a test directory:
 ```bash
 mkdir test-install
 cd test-install
-npm init -y
-npm install prettier prettier-plugin-pandoc
+bun init -y
+bun add prettier prettier-plugin-pandoc
 ```
 
 Create `test.md`:
@@ -75,7 +68,7 @@ Term
 
 Format it:
 ```bash
-npx prettier --write test.md --plugin prettier-plugin-pandoc --parser pandoc
+bun x prettier --write test.md --plugin prettier-plugin-pandoc --parser pandoc
 ```
 
 ## 🔄 Future Releases
@@ -102,14 +95,3 @@ npm unpublish prettier-plugin-pandoc@0.1.0
 ```
 
 **Warning:** Can only unpublish within 72 hours of publishing.
-
-### Deprecate (after 72 hours)
-```bash
-npm deprecate prettier-plugin-pandoc@0.1.0 "This version has issues, use @latest"
-```
-
-## 📊 After Publishing
-
-1. **Announce** - Share on social media, Quarto community forum
-2. **Monitor** - Watch GitHub issues for bug reports
-3. **Gather feedback** - Ask early adopters for input
