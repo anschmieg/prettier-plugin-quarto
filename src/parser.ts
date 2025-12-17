@@ -5,6 +5,10 @@ import { astFormat } from './ast'
 
 // Pandoc extensions
 import {
+  citationExtension,
+  citationFromMarkdownExtension,
+  definitionListExtension,
+  definitionListFromMarkdownExtension,
   directiveExtension,
   directiveFromMarkdownExtension,
   frontmatterExtension,
@@ -37,12 +41,16 @@ export const parser: Parser<ASTNode> = {
         mathExtension(),
         frontmatterExtension,
         gfmExtension(),
+        definitionListExtension, // Definition Lists
+        citationExtension({}), // Citations
       ],
       mdastExtensions: [
         directiveFromMarkdownExtension(),
         mathFromMarkdownExtension(),
         frontmatterFromMarkdownExtension,
         gfmFromMarkdownExtension(),
+        definitionListFromMarkdownExtension,
+        citationFromMarkdownExtension,
       ],
     })
 
