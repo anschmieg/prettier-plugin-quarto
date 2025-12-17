@@ -18,10 +18,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Node 22 includes npm 11+
-          registry-url: 'https://registry.npmjs.org'
+          node-version: '22'
+          # NO registry-url - let npm handle OIDC natively
 
-      - name: Verify npm version
+      - name: Verify npm version (need 11.5.1+)
         run: npm --version
 
       - name: Setup Bun
