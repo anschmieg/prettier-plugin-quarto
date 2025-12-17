@@ -1,0 +1,26 @@
+# Test files
+tests/
+*.test.ts
+*.test.js
+
+# Test fixtures
+test-*
+verify-*
+debug-*
+
+# Build artifacts
+src/
+tsconfig.json
+vite.config.ts
+
+# CI/CD
+.github/
+.eslintrc.json
+
+# Development
+quarto-docs/
+DEVELOPER_CONTEXT.md
+
+# Misc
+.DS_Store
+*.log

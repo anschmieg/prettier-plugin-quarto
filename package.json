@@ -4,9 +4,13 @@
   "version": "0.0.1",
   "description": "A Prettier plugin for Quarto documents (.qmd)",
   "author": "Adrian",
+  "homepage": "https://github.com/anschmieg/prettier-plugin-quarto#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/anschmieg/prettier-plugin-quarto"
+  },
+  "bugs": {
+    "url": "https://github.com/anschmieg/prettier-plugin-quarto/issues"
   },
   "keywords": [
     "quarto",
