@@ -1,75 +1,17 @@
-# npm Publish Guide for prettier-plugin-pandoc
+## 🔐 Setup Trusted Publishing (Recommended)
 
-## ✅ Pre-Publish Checklist
+Instead of managing secrets, use npm's **Trusted Publishing** (OIDC) to securely link GitHub Actions to npm.
 
-- [x] README.md updated with package name `prettier-plugin-pandoc`
-- [x] LICENSE exists (MIT)
-- [x] package.json metadata updated (homepage, bugs)
-- [x] .npmignore configured (excludes guide, tests, src)
-- [x] Build passes (`bun run build`)
-- [x] Tests pass (`bun test`)
-- [x] Git committed and pushed
+1.  **Go to npm:** [package settings](https://www.npmjs.com/package/prettier-plugin-pandoc/access)
+2.  **Click:** "Publishing" (or "Settings" -> "Publishing")
+3.  **Link GitHub Repository:**
+    *   **Owner:** `anschmieg`
+    *   **Repository:** `prettier-plugin-pandoc`
+    *   **Workflow filename:** `.github/workflows/release.yml`
+    *   **Environment:** (Leave empty if not using environments)
+4.  **Click:** "Add Linked Repository"
 
-## 📦 Publishing Steps
-
-### 1. Login to npm (first time only)
-
-```bash
-npm login
-```
-*Note: We stick to `npm login` and `npm publish` as they are the standard interactions with the registry.*
-
-### 2. Verify Package Contents
-
-```bash
-npm pack --dry-run
-```
-
-This shows what will be included in the package. Should see:
-- `dist/` folder (compiled code)
-- `README.md`
-- `LICENSE`
-- `package.json`
-
-Should NOT see:
-- `src/` folder
-- `tests/` folder
-- `NPM_PUBLISH_GUIDE.md`
-
-### 3. Publish
-
-```bash
-npm publish --access public
-```
-
-### 4. Verify Publication
-
-Visit: https://www.npmjs.com/package/prettier-plugin-pandoc
-
-Check that:
-- Version shows `0.1.0`
-- README renders correctly with the disclaimer
-
-### 5. Test Installation
-
-In a test directory:
-```bash
-mkdir test-install
-cd test-install
-bun init -y
-bun add prettier prettier-plugin-pandoc
-```
-
-Create `test.md`:
-```markdown
-Term
-:   Definition
-```
-
-Format it:
-```bash
-bun x prettier --write test.md --plugin prettier-plugin-pandoc --parser pandoc
-```
+*That's it! GitHub Actions will now automatically authenticate without needing `NPM_TOKEN`.*
 
 ## 🔄 Future Releases
 
