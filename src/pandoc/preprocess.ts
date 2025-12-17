@@ -18,10 +18,92 @@ export function preprocessPandocSyntax(text: string): string {
   const lines = text.split('\n')
   const result: string[] = []
   const divStack: number[] = [] // Track nesting depth
+  let insideMathBlock = false
+  let mathBuffer: string[] = []
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
 
+    // 1. Handle Math Blocks with Labels
+    if (line.trim().startsWith('$$')) {
+      if (insideMathBlock) {
+        // Closing the block
+        // Relaxed regex: Just check for $$ and optional {attributes}
+        // console.log('Checking close match for:', line)
+        const closeMatch = line.trim().match(/^\$\$\s*(\{.*\})?$/)
+        if (closeMatch) {
+          insideMathBlock = false
+          const label = closeMatch[1] // e.g. "{#eq-label}"
+
+          // Only treat as Labeled Math if it actually HAS a label,
+          // OR if we are forcing consistency.
+          // IF no label, we should probably output as standard math $$ to avoid Directive overhead?
+          // BUT if we mix them, printer logic gets complex.
+          // Let's standardise on Directive if it has a label.
+          // If it doesn't have a label, we can create a `math` directive without attrs,
+          // or just output back $$ ... $$?
+          // Let's output directive to be safe from swallowing.
+
+          const attrs = label ? `${label}` : ''
+          result.push(`::: math ${attrs}`.trim())
+          result.push(...mathBuffer)
+          result.push(':::')
+
+          mathBuffer = []
+          continue
+        }
+        else {
+          mathBuffer.push(line)
+          continue
+        }
+      }
+      else {
+        // Opening block
+        // Check single line $$ ... $$
+        if (line.trim().match(/^\$\$.+\$\$/)) {
+          // Single line math, pass through?
+          // But what if it has label? $$ E=mc^2 $$ {#eq}
+          const singleLineMatch = line.trim().match(/^\$\$(.+)\$\$\s*(\{.*\})?$/)
+          if (singleLineMatch) {
+            const content = singleLineMatch[1]
+            const label = singleLineMatch[2] || ''
+            result.push(`::: math ${label}`.trim())
+            result.push(content)
+            result.push(':::')
+            continue
+          }
+          // Plain single line, let pass
+          result.push(line)
+          continue
+        }
+
+        // Block start
+        const openMatch = line.trim().match(/^\$\$\s*(\{.*\})?$/)
+        if (openMatch) {
+          insideMathBlock = true
+          // console.log('Opened math block')
+          continue
+        }
+      }
+    }
+
+    if (insideMathBlock) {
+      mathBuffer.push(line)
+      continue
+    }
+
+    // 2. Handle Shortcodes {{< ... >}}
+    // Convert to leaf directive: ::shortcode{raw="inner content"}
+    const shortcodeMatch = line.match(/^(\s*)\{\{< (.+) >\}\}(\s*)$/)
+    if (shortcodeMatch) {
+      const [, indent, content, trailing] = shortcodeMatch
+      // Escape quotes in content
+      const safeContent = content.replace(/"/g, '\\"')
+      result.push(`${indent}::shortcode{raw="${safeContent}"}${trailing}`)
+      continue
+    }
+
+    // 3. Existing Div Logic (Preserved)
     // Check closing fence FIRST (must be standalone, just colons)
     // Match closing fence: ::: (must be standalone)
     const closeMatch = line.match(/^(:{3,})\s*$/)
@@ -72,6 +154,12 @@ export function preprocessPandocSyntax(text: string): string {
 
     // Regular line, keep as-is
     result.push(line)
+  }
+
+  // Close any dangling blocks (shouldn't happen in valid docs)
+  if (insideMathBlock) {
+    // Dump buffer if not closed (fallback)
+    result.push('$$', ...mathBuffer)
   }
 
   return result.join('\n')

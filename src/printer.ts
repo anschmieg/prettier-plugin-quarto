@@ -30,12 +30,36 @@ export const printer: Printer<ASTNode> = {
         handlers: {
           ...directiveExt.handlers,
           containerDirective(node: any, _parent: any, state: any, info: any) {
+            // SPECIAL: Handle preprocessed Math blocks
+            if (node.name === 'math') {
+              const content = state.containerFlow(node, info)
+              // Reconstruct attributes: {#eq-label}
+              let idStr = ''
+              if (node.attributes && node.attributes.id) {
+                idStr = ` {#${node.attributes.id}}`
+              }
+              else if (node.attributes && Object.keys(node.attributes).length > 0) {
+                // Fallback for other attributes if any?
+                // Usually math only has Label.
+                // But if we used the preprocess hack, the label might be empty or specific string
+              }
+
+              // If we passed the full label string in preprocessing as a class or something?
+              // In preprocess.ts I did: `::: math ${attrs}`
+              // micromark parses `::: math {#eq}` as attributes.id = eq.
+
+              return `$$\n${content.trim()}\n$$${idStr}`
+            }
+
             // Always output Pandoc fenced div syntax (with :::, not longer fences)
             // Build attribute string
             const attrs: string[] = []
             if (node.attributes) {
               if (node.attributes.class) {
-                attrs.push(`.${node.attributes.class}`)
+                // Handle multiple classes? micromark puts them in 'class' attribute string separated by space?
+                // Actually mdast-util-directive puts them in node.attributes.class
+                const classes = node.attributes.class.split(' ')
+                classes.forEach((c: string) => attrs.push(`.${c}`))
               }
               if (node.attributes.id) {
                 attrs.push(`#${node.attributes.id}`)
@@ -70,6 +94,16 @@ export const printer: Printer<ASTNode> = {
             // Ensure content ends with newline before closing fence
             const trimmedContent = content.trim()
             return `${header}\n${trimmedContent}\n:::`
+          },
+          leafDirective(node: any, _parent: any, state: any, info: any) {
+            // SPECIAL: Handle preprocessed Shortcodes
+            if (node.name === 'shortcode') {
+              if (node.attributes && node.attributes.raw) {
+                return `{{< ${node.attributes.raw} >}}`
+              }
+            }
+            // Default fallback for other leaf directives
+            return state.handle(node, _parent, state, info)
           },
         },
       }
