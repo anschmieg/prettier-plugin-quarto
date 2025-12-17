@@ -3,11 +3,10 @@
   "type": "module",
   "version": "0.0.1",
   "description": "A Prettier plugin for Quarto documents (.qmd)",
-  "author": "",
-  "license": "MIT",
+  "author": "Adrian",
   "repository": {
     "type": "git",
-    "url": "https://github.com/placeholder/prettier-plugin-quarto"
+    "url": "https://github.com/anschmieg/prettier-plugin-quarto"
   },
   "keywords": [
     "quarto",
@@ -36,7 +35,7 @@
     "build": "vite build",
     "test": "vitest",
     "lint": "eslint .",
-    "typecheck": "vue-tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "release": "bumpp package.json"
   },
   "peerDependencies": {
@@ -69,11 +68,10 @@
     "prettier": "^3.0.0",
     "simple-git-hooks": "^2.9.0",
     "tsup": "^8.0.1",
-    "typescript": "^5.0.0",
+    "typescript": "^5.9.3",
     "vite": "^5.0.12",
     "vite-plugin-dts": "^3.7.2",
-    "vitest": "^1.2.2",
-    "vue-tsc": "^1.8.27"
+    "vitest": "^1.2.2"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
