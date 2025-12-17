@@ -1,72 +1,55 @@
-# prettier-plugin-quarto
+# prettier-plugin-pandoc
 
-A [Prettier](https://prettier.io) plugin for formatting [Quarto](https://quarto.org) documents (`.qmd`) and Pandoc Markdown (`.md`).
+A [Prettier](https://prettier.io) plugin for formatting **Pandoc Markdown** (`.md`) and **Quarto** documents (`.qmd`).
 
-[![CI](https://github.com/anschmieg/prettier-plugin-quarto/actions/workflows/test.yml/badge.svg)](https://github.com/anschmieg/prettier-plugin-quarto/actions/workflows/test.yml)
+[![CI](https://github.com/anschmieg/prettier-plugin-pandoc/actions/workflows/test.yml/badge.svg)](https://github.com/anschmieg/prettier-plugin-pandoc/actions/workflows/test.yml)
+[![npm](https://img.shields.io/npm/v/prettier-plugin-pandoc)](https://www.npmjs.com/package/prettier-plugin-pandoc)
 
-## What is Quarto?
-
-[Quarto](https://quarto.org) is an open-source scientific and technical publishing system built on Pandoc. It combines Markdown with executable code blocks (Python, R, Julia, Observable) to create reproducible documents, presentations, websites, and books.
+> [!WARNING]
+> This plugin is currently in early development. It has been verified against a comprehensive suite of syntax test cases, but has not yet been battle-tested on a large number of real-world projects. Please use with caution and backup your data (e.g. via git) before formatting.
 
 ## Features
 
 ### Dual Parser Support
 
-- **`quarto` parser** - Full Quarto support for `.qmd` files
-  - ✅ Math blocks with labels: `$$ E=mc^2 $$ {#eq-einstein}`
-  - ✅ Shortcodes: `{{< meta title >}}`
-  - ✅ All Pandoc extensions
+This plugin includes two parsers to handle the subtle differences between standard Pandoc Markdown and Quarto's extended syntax:
 
 - **`pandoc` parser** - Standard Pandoc for `.md` files
   - ✅ Citations: `[@smith2020]`
   - ✅ Definition lists
   - ✅ Divs/Callouts: `::: {.note}`
   - ✅ GFM (tables, task lists, etc.)
-  - ❌ No Quarto-specific syntax
+  - ✅ Math blocks (standard)
 
-### Comprehensive Syntax Support
-
-| Feature | Quarto Parser | Pandoc Parser |
-|---------|--------------|---------------|
-| Math blocks | ✅ | ✅ |
-| Labeled equations | ✅ | ❌ |
-| Citations | ✅ | ✅ |
-| Definition lists | ✅ | ✅ |
-| Fenced divs | ✅ | ✅ |
-| Shortcodes | ✅ | ❌ |
-| YAML frontmatter | ✅ | ✅ |
-| GFM (tables, etc.) | ✅ | ✅ |
+- **`quarto` parser** - Extended support for `.qmd` files
+  - ✅ **Everything in Pandoc parser**
+  - ✅ Math blocks with labels: `$$ E=mc^2 $$ {#eq-einstein}`
+  - ✅ Shortcodes: `{{< meta title >}}`
 
 ### Safety Features
 
 - **Code block protection** - Content inside fenced code blocks is never modified
 - **Lossless round-trips** - Formatting preserves all attributes and metadata
-- **Tested** - 31 automated tests (18 syntax + 13 render equivalence)
+- **Tested** - Comprehensive automated test suite ensuring semantic equivalence
 
 ## Installation
 
 ```bash
-npm install --save-dev prettier prettier-plugin-quarto@alpha
+npm install --save-dev prettier prettier-plugin-pandoc
 ```
 
 ## Usage
 
-### Automatic (`.qmd` files)
+### Automatic Configuration
 
-Prettier automatically uses the `quarto` parser for `.qmd` files:
+Prettier automatically uses the `quarto` parser for `.qmd` files.
 
-```bash
-npx prettier --write document.qmd
-```
-
-### Manual (`.md` files)
-
-To use the `pandoc` parser for `.md` files, configure Prettier:
+For `.md` files, Prettier defaults to its built-in Markdown parser. You must explicitly configure it to use the `pandoc` parser if you want to support Pandoc features like citation syntax or definition lists.
 
 **.prettierrc**
 ```json
 {
-  "plugins": ["prettier-plugin-quarto"],
+  "plugins": ["prettier-plugin-pandoc"],
   "overrides": [
     {
       "files": "*.md",
@@ -78,12 +61,28 @@ To use the `pandoc` parser for `.md` files, configure Prettier:
 }
 ```
 
-Then format:
+### Running Prettier
+
+Format all documents:
 ```bash
-npx prettier --write document.md
+npx prettier --write "**/*.{md,qmd}"
 ```
 
 ## Examples
+
+### Pandoc Markdown (`.md`)
+
+**Input:**
+```markdown
+# Citations
+
+See @smith2020 for details.
+
+Term
+:   Definition
+```
+
+**Output:** (formatted, standard Pandoc syntax preserved)
 
 ### Quarto Document (`.qmd`)
 
@@ -104,32 +103,14 @@ $$ {#eq-bs}
 {{< meta title >}} uses R.
 ```
 
-**Output:** (formatted, preserves all Quarto syntax)
-
-### Pandoc Markdown (`.md`)
-
-**Input:**
-```markdown
-# Citations
-
-See @smith2020 for details.
-
-Term
-:   Definition
-```
-
-**Output:** (formatted, standard Pandoc syntax preserved)
-
-## Configuration
-
-This plugin uses Prettier's standard configuration. No Quarto-specific options yet.
+**Output:** (formatted, preserves all Quarto specific syntax)
 
 ## Compatibility
 
 - **Prettier:** `^3.0.0`
 - **Node.js:** `>=18.0.0` (ES modules)
-- **Quarto:** Tested with Quarto 1.4+
 - **Pandoc:** Tested with Pandoc 3.1+
+- **Quarto:** Tested with Quarto 1.4+
 
 ## Development
 
@@ -142,51 +123,14 @@ npm run build
 
 # Test
 npm test
-
-# Lint
-npm run lint
 ```
-
-## Testing
-
-```bash
-# Run all tests
-npm test
-
-# Syntax safety tests only
-npm test -- tests/syntax-safety.test.ts
-
-# Render equivalence tests (requires Pandoc/Quarto CLI)
-npm test -- tests/render-equivalence.test.ts
-```
-
-## Known Limitations
-
-### Alpha Release
-
-This is an **alpha** release. While functional and tested, expect:
-- Potential formatting quirks
-- Evolving API
-- Missing features
-
-### Pandoc Limitations
-
-- Labeled math (`$$ {#eq:label}`) only works with Quarto, not raw Pandoc CLI
-- Some advanced Quarto features may not be fully supported yet
-
-## Roadmap
-
-- [ ] Additional Quarto syntax (tabsets, layouts)
-- [ ] Formatting options (line width for math, etc.)
-- [ ] Better error messages
-- [ ] Performance optimizations
 
 ## Contributing
 
 Contributions welcome! Please:
 
 1. Open an issue first to discuss changes
-2. Follow existing code style (ESLint configured)
+2. Follow existing code style
 3. Add tests for new features
 4. Update README for user-facing changes
 
@@ -198,12 +142,6 @@ MIT
 
 Built with:
 - [Prettier](https://prettier.io)
-- [micromark](https://github.com/micromark/micromark) - Markdown parsing
-- [mdast-util-from-markdown](https://github.com/syntax-tree/mdast-util-from-markdown) - AST utilities
-- [@benrbray/micromark-extension-cite](https://github.com/benrbray/micromark-extension-cite) - Citation support
-
-## See Also
-
-- [Quarto Documentation](https://quarto.org)
-- [Pandoc Manual](https://pandoc.org/MANUAL.html)
-- [Prettier Plugins](https://prettier.io/docs/en/plugins.html)
+- [micromark](https://github.com/micromark/micromark)
+- [mdast-util-from-markdown](https://github.com/syntax-tree/mdast-util-from-markdown)
+- [@benrbray/micromark-extension-cite](https://github.com/benrbray/micromark-extension-cite)

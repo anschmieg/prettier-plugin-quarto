@@ -1,18 +1,19 @@
 {
-  "name": "prettier-plugin-quarto",
+  "name": "prettier-plugin-pandoc",
   "type": "module",
-  "version": "0.0.1",
-  "description": "A Prettier plugin for Quarto documents (.qmd)",
+  "version": "0.1.0",
+  "description": "A Prettier plugin for Pandoc Markdown and Quarto documents",
   "author": "Adrian",
-  "homepage": "https://github.com/anschmieg/prettier-plugin-quarto#readme",
+  "homepage": "https://github.com/anschmieg/prettier-plugin-pandoc#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/anschmieg/prettier-plugin-quarto"
+    "url": "https://github.com/anschmieg/prettier-plugin-pandoc"
   },
   "bugs": {
-    "url": "https://github.com/anschmieg/prettier-plugin-quarto/issues"
+    "url": "https://github.com/anschmieg/prettier-plugin-pandoc/issues"
   },
   "keywords": [
+    "pandoc",
     "quarto",
     "prettier",
     "prettier-plugin",
