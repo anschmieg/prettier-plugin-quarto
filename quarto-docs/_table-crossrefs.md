@@ -1,5 +1,3 @@
-
-
 For markdown tables, add a caption below the table, then include a `#tbl-` label in braces at the end of the caption. For example:
 
 ``` markdown

@@ -14,6 +14,7 @@ import {
   mathExtension,
   mathFromMarkdownExtension,
 } from './pandoc'
+import { preprocessPandocSyntax } from './pandoc/preprocess'
 
 export const parser: Parser<ASTNode> = {
   astFormat,
@@ -25,16 +26,8 @@ export const parser: Parser<ASTNode> = {
   },
   async parse(text: string) {
     // Pre-process Pandoc fenced div syntax to be compatible with micromark-extension-directive
-    // Pandoc allows: ::: {.class} or ::: name {.class}
-    // micromark-extension-directive requires: :::name{.class}
-    // We convert: ::: {.class} -> :::div{.class}
-    const preprocessed = text
-      // Match ::: followed by optional whitespace and then attributes in braces
-      // Convert to :::div{attributes}
-      .replace(/^:::(\s+)\{/gm, ':::div{')
-      // Match ::: followed by a name, whitespace, and attributes
-      // Convert to :::name{attributes}
-      .replace(/^:::([\w-]+)\s+\{/gm, ':::$1{')
+    // This handles nested divs by using different colon counts for different nesting levels
+    const preprocessed = preprocessPandocSyntax(text)
 
     // Parse markdown with all Pandoc and Quarto extensions
     // This enables True AST parsing for divs, math, frontmatter, tables, etc.

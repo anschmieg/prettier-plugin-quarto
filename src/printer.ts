@@ -30,41 +30,46 @@ export const printer: Printer<ASTNode> = {
         handlers: {
           ...directiveExt.handlers,
           containerDirective(node: any, _parent: any, state: any, info: any) {
-            const original = directiveExt.handlers?.containerDirective
-
-            // If the directive name is 'div', output Pandoc fenced div syntax
-            if (node.name === 'div') {
-              // Build attribute string
-              const attrs: string[] = []
-              if (node.attributes) {
-                if (node.attributes.class) {
-                  attrs.push(`.${node.attributes.class}`)
-                }
-                if (node.attributes.id) {
-                  attrs.push(`#${node.attributes.id}`)
-                }
-                // Add other attributes
-                for (const [key, value] of Object.entries(node.attributes)) {
-                  if (key !== 'class' && key !== 'id') {
-                    attrs.push(`${key}="${value}"`)
-                  }
+            // Always output Pandoc fenced div syntax (with :::, not longer fences)
+            // Build attribute string
+            const attrs: string[] = []
+            if (node.attributes) {
+              if (node.attributes.class) {
+                attrs.push(`.${node.attributes.class}`)
+              }
+              if (node.attributes.id) {
+                attrs.push(`#${node.attributes.id}`)
+              }
+              // Add other attributes
+              for (const [key, value] of Object.entries(node.attributes)) {
+                if (key !== 'class' && key !== 'id') {
+                  attrs.push(`${key}="${value}"`)
                 }
               }
-
-              // Format children
-              const content = state.containerFlow(node, info)
-              const attrString = attrs.length > 0 ? ` {${attrs.join(' ')}}` : ''
-
-              // Ensure content ends with newline before closing fence
-              const trimmedContent = content.trim()
-              return `:::${attrString}\n${trimmedContent}\n:::`
             }
 
-            // Otherwise use the original handler
-            if (original) {
-              return original.call(this, node, _parent, state, info)
+            // Format children
+            const content = state.containerFlow(node, info)
+
+            // Determine header based on directive name and attributes
+            let header = ':::'
+            if (node.name && node.name !== 'div') {
+              // Named directive (uncommon in Pandoc)
+              if (attrs.length > 0) {
+                header = `::: ${node.name} {${attrs.join(' ')}}`
+              }
+              else {
+                header = `::: ${node.name}`
+              }
             }
-            return ''
+            else if (attrs.length > 0) {
+              // Div with attributes (standard Pandoc)
+              header = `::: {${attrs.join(' ')}}`
+            }
+
+            // Ensure content ends with newline before closing fence
+            const trimmedContent = content.trim()
+            return `${header}\n${trimmedContent}\n:::`
           },
         },
       }

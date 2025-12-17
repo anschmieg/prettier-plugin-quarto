@@ -9,7 +9,6 @@ This is content inside a div.
 ## Callout Example
 
 ::: {.callout-note}
-
 ## Important Note
 
 This is a callout note with **bold** and *italic* text.
@@ -29,8 +28,7 @@ More outer content
 
 ## Callout with ID
 
-::: {#tip-example .callout-tip}
-
+::: {.callout-tip #tip-example}
 ## Cross-Referencing a Tip
 
 Add an ID starting with `#tip-` to reference a tip.

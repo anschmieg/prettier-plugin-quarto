@@ -1,10 +1,9 @@
-***
-
+---
 title: "Methodology"
 subtitle: "From Research Question to Identification Strategy"
 execute:
-echo: false
------------
+  echo: false
+---
 
 ```{r}
 #| label: setup
@@ -101,7 +100,7 @@ This likely **attenuates** our estimates of any discrimination effect.
 The *pooled treatment indicator* is:
 
 $$
-D\_i = \mathbb{1}{\text{HasTattoo}\_i \cup \text{HasPiercing}\_i}
+D_i = \mathbb{1}\{\text{HasTattoo}_i \cup \text{HasPiercing}_i\}
 $$
 
 ### Step 2: Treatment Timing
@@ -110,7 +109,7 @@ The data records *age at modification*, not *calendar year*.
 To make this compatible with the LISS panel data, we convert as follows, which gives us the *calendar year of first body modification*.
 
 $$
-\text{EventYear}\_i = \text{BirthYear}\_i + \min(\text{AgeAtTattoo}\_i, \text{AgeAtPiercing}\_i)
+\text{EventYear}_i = \text{BirthYear}_i + \min(\text{AgeAtTattoo}_i, \text{AgeAtPiercing}_i)
 $$
 
 ```{r}
@@ -145,7 +144,7 @@ After visual inspection, the income appears to follow a log-normal distribution.
 We therefore use *log monthly income* as the outcome variable:
 
 $$
-y\_{it} = \log(\text{NetMonthlyIncome}\_{it})
+y_{it} = \log(\text{NetMonthlyIncome}_{it})
 $$
 
 ### Step 4: Construction of the Sample
@@ -183,7 +182,7 @@ This yields **`r format(n_total, big.mark = ",")`** person-year observations fro
 A simple regression like:
 
 $$
-\log(y\_i) = \alpha + \beta \cdot \text{HasTattoo}\_i + \varepsilon\_i
+\log(y_i) = \alpha + \beta \cdot \text{HasTattoo}_i + \varepsilon_i
 $$
 
 yields the correlation between tattoos and income, but is likely biased because:
@@ -206,33 +205,33 @@ Following @card1994minimum, we set up a 2×2 comparison:
 
 |                     | Pre-Treatment            | Post-Treatment            | Change (Δ)          |
 | ------------------- | ------------------------ | ------------------------- | ------------------- |
-| **Treatment Group** | $\bar{Y}*{T,\text{Pre}}$ | $\bar{Y}*{T,\text{Post}}$ | $\Delta\_T$          |
-| **Control Group**   | $\bar{Y}*{C,\text{Pre}}$ | $\bar{Y}*{C,\text{Post}}$ | $\Delta\_C$          |
-| **Difference**      |                          |                           | $\tau\_{\text{DiD}}$ |
+| **Treatment Group** | $\bar{Y}_{T,\text{Pre}}$ | $\bar{Y}_{T,\text{Post}}$ | $\Delta_T$          |
+| **Control Group**   | $\bar{Y}_{C,\text{Pre}}$ | $\bar{Y}_{C,\text{Post}}$ | $\Delta_C$          |
+| **Difference**      |                          |                           | $\tau_{\text{DiD}}$ |
 
 The DiD estimator is:
 
 $$
-\tau\_{\text{DiD}} = \Delta\_T - \Delta\_C = (\bar{Y}*{T,\text{Post}} - \bar{Y}*{T,\text{Pre}}) - (\bar{Y}*{C,\text{Post}} - \bar{Y}*{C,\text{Pre}})
+\tau_{\text{DiD}} = \Delta_T - \Delta_C = (\bar{Y}_{T,\text{Post}} - \bar{Y}_{T,\text{Pre}}) - (\bar{Y}_{C,\text{Post}} - \bar{Y}_{C,\text{Pre}})
 $$
 
 We estimate the DiD effect using a regression model:
 
 $$
-Y\_{it} = \beta\_0 + \beta\_1 D\_i + \beta\_2 \text{Post}\_t + \beta\_3 (D\_i \times \text{Post}*t) + u*{it}
+Y_{it} = \beta_0 + \beta_1 D_i + \beta_2 \text{Post}_t + \beta_3 (D_i \times \text{Post}_t) + u_{it}
 $$
 
 **Coefficient Interpretation:**
 
 | Coefficient   | Meaning                                                                                                                      |
 | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| $\beta\_0$     | Mean outcome for control group, pre-period; *average income of untreated individuals at the start of the observation window* |
-| $\beta\_1$     | Pre-existing difference (selection effect); *structural difference between treated and untreated individuals*                |
-| $\beta\_2$     | Time trend affecting both groups                                                                                             |
-| **$\beta\_3$** | The DiD effect; *change in income for treated individuals excluding the common trend*                                        |
+| $\beta_0$     | Mean outcome for control group, pre-period; *average income of untreated individuals at the start of the observation window* |
+| $\beta_1$     | Pre-existing difference (selection effect); *structural difference between treated and untreated individuals*                |
+| $\beta_2$     | Time trend affecting both groups                                                                                             |
+| **$\beta_3$** | The DiD effect; *change in income for treated individuals excluding the common trend*                                        |
 
 ::: {.callout-important}
-$\beta\_3$ captures the additional change for the treated group beyond the common trend,
+$\beta_3$ captures the additional change for the treated group beyond the common trend,
 which is the **Average Treatment Effect on the Treated (ATT)**.
 :::
 
@@ -240,27 +239,26 @@ which is the **Average Treatment Effect on the Treated (ATT)**.
 
 With panel data, we can use a standard two-way fixed effects model to absorb individual effects and time heterogeneity:
 
-$$
-y\_{it} = \alpha\_i + \tau\_t + \beta \cdot D\_{it} + X\_{it}'\gamma + \varepsilon\_{it}
-
+$$$
+y_{it} = \alpha_i + \tau_t + \beta \cdot D_{it} + X_{it}'\gamma + \varepsilon_{it}
 <!-- prettier-ignore -->
-
 $$ {#eq-twfe}
 
 Where:
 
-* $\alpha\_i$ = individual fixed effects (absorbs all time-invariant differences)
-* $\tau\_t$ = year fixed effects (absorbs common shocks)
-* $D\_{it}$ = *dummy:* treatment indicator (= 1 after modification)
-* $X\_{it}$ = time-varying controls
-* $\beta$ = **estimated causal effect** (equivalent to $\beta\_3$ in the DiD regression above)
+- $\alpha_i$ = individual fixed effects (absorbs all time-invariant differences)
+- $\tau_t$ = year fixed effects (absorbs common shocks)
+- $D_{it}$ = _dummy:_ treatment indicator (= 1 after modification)
+- $X_{it}$ = time-varying controls
+- $\beta$ = **estimated causal effect** (equivalent to $\beta_3$ in the DiD regression above)
 
 ### Core Assumption: Parallel Trends
 
-For $\beta$ to be interpretable as a causal effect, we need to assume that the *parallel trends assumption* holds,
+For $\beta$ to be interpretable as a causal effect, we need to assume that the _parallel trends assumption_ holds,
 i.e. in the absence of treatment, the (log) income of treated and control groups would have developed along the same trend.
 
-$$
+
+$$$
 
 \mathbb{E}\[Y\_{i,t+1}(0) - Y\_{it}(0) | D\_i = 1] = \mathbb{E}\[Y\_{i,t+1}(0) - Y\_{it}(0) | D\_i = 0]
 
@@ -273,7 +271,7 @@ In order to determine whether this assumption is reasonable, we perform:
 
 These tests are presented in the Results chapter (Part III: Model Validation).
 
-***
+---
 
 ## Model Specification
 
@@ -292,12 +290,12 @@ We estimate four specifications to explore these issues:
 | **A** | Any modification | Full | Maximum power |
 | **B** | Piercing only | Exclude tattoo holders | Isolate piercing effect |
 | **C** | Tattoo only | Exclude piercing holders | Test rare treatment assumed to be more stigmatized |
-| **D** | Both jointly *(logical OR)* | Full | Estimate separate effects |
+| **D** | Both jointly _(logical OR)_ | Full | Estimate separate effects |
 
 <!-- TODO: add a note in the final chapter explaining that one could re-classify treatments into 'high stigma' and 'low stigma'
 modifications based on the characteristics in the dataset, but this would decrease sample size even further -->
 
-***
+---
 
 ## Limitations & Caveats
 
@@ -313,13 +311,15 @@ could address heterogeneous treatment timing. Consider for future work if sample
 
 We proceed with DiD but interpret results cautiously:
 
-* Report cross-sectional OLS for comparison
-* Test parallel trends via event study
-* Discuss selection concerns in results interpretation
+- Report cross-sectional OLS for comparison
+- Test parallel trends via event study
+- Discuss selection concerns in results interpretation
 
-::: {.callout-caution}
-Our estimates should be interpreted as *suggestive* of a causal effect rather than proof. The DiD design addresses some but not all identification concerns.
-:::
+:::::div{.callout-caution}
+Our estimates should be interpreted as _suggestive_ of a causal effect rather than proof. The DiD design addresses some but not all identification concerns.
+:::::
 
 <!-- TODO (DEFERRED): Add note in conclusion about reclassifying treatments into 'high stigma' (visible tattoos, facial piercings)
 and 'low stigma' (ear piercings, hidden tattoos) categories. -->
+
+$$
