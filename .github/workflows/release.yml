@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
+          # Do NOT set registry-url here - it creates .npmrc that breaks OIDC
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -32,5 +32,5 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Publish to npm
+      - name: Publish to npm with OIDC
         run: npm publish --provenance --access public
